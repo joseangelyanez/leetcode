@@ -1,0 +1,154 @@
+<html>
+    <script type="text/javascript">
+        var counter = 0;
+        var pos = null;
+        var neg = null;
+
+        function getNumber(array)
+        {
+            var i = 0;
+            var s = 0;
+
+            for (i = 0; i < array.length; i ++)
+            {
+                if (array[i] == 1)
+                    s += (Math.pow(-2 , i));
+            }
+
+            return s;
+        }
+
+        function run(array)
+        {       
+            var depth = array.length - 1;
+            var y = getNumber(array);
+            y = y * -1;
+            counter = 0;
+
+            while(true)
+            {
+                counter += 1;
+
+                pos = [];
+                neg = [];
+                res = [];
+                map = [];
+
+                for (i = 0; i < depth; i ++)
+                {
+                    res.push(0);
+                    var num = Math.pow(-2, i);
+                    map[num] = i;
+                    if (num > 0)
+                        pos.push(num);
+                    else
+                        neg.push(num);
+                }
+
+                var test = [];
+                var start;
+                
+                if (y > 0)
+                    start = pos.splice(pos.length - 1)[0];
+                else
+                    start = neg.splice(neg.length - 1)[0];
+
+                test.push(start);
+
+                if (counter > 200)
+                {
+                    console.log("Too many tries, the value '" + y + " 'could not be found. Not all numbers will have a solution, ie. [0,0,0,1] has no valid solution.")
+                    return false;
+                }
+
+                if (go(start - y, test))
+                {
+                    console.log("Found it: " + y);
+                    console.log("------------------")
+                    console.log("Numbers used in the operation: ")
+                    console.log(test);
+
+                    for (i = 0; i < test.length; i ++)
+                    {
+                        var current = test[i];
+
+                        var index = map[current];
+                        res[index] = 1;
+                    }
+                    console.log("Final bit array representing the solution.")
+                    console.log(res);
+
+                    return true;
+                }
+                else
+                {
+                    depth += 1;
+                    console.log("Retrying search with an additional bit.");
+                }
+            }
+        }
+
+        var isPos = true;
+
+        function go(x, array)
+        {
+            var best;
+
+            if (x > 0)
+            {
+                best = getBest(x, neg);
+            }
+            else
+            {
+                best = getBest(x, pos);
+            }
+
+            var p = best + x;
+            array.push(best);
+
+            if (best == null)
+                return false;
+
+            if (p == 0)
+                return true;
+            else
+                return go(p, array);
+        }
+
+        function getBest(x, array)
+        {
+            if (array == null)
+                return null;
+
+            var bestDiff;
+            var bestIndex;
+            var result;
+            for (i = 0; i < array.length; i ++)
+            {
+                var diff = Math.abs(x) - Math.abs(array[i]);
+                
+                if (diff == 0)
+                {
+                    bestIndex = i;
+                    break;
+                }
+
+                if (!bestDiff || (diff > 0))
+                {
+                    bestIndex = i;
+                    bestDiff = diff;
+                }
+                
+                if (diff < 0)
+                {
+                    bestIndex = i; 
+                    break;
+                } 
+                    
+            }
+
+            result = array.splice(bestIndex, 1);
+            return result[0];
+        }
+    </script>
+</html>
